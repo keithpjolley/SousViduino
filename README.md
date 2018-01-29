@@ -49,6 +49,12 @@ I'm not 100% convinced that the "Press 'SELECT'" to retune does anything but swi
 with the UP|DOWN buttons works fine. I'm not concerned if the retune works or not right now so I'm
 not going to worry about it for now. It's not a problem that needs to be solved.
 
+The above code ran overnight and kept the recorded temperature within 1/2°F the entire time.
+
+Next test will be to keep a crockpot (Crock-Pot®) at 141°F. I won'tbe able to record the serial
+output because I don't have an SD Shield and I don't want the laptop tied up in the kitchen overnight.
+This will also be a chance to see if I need to calibrate the thermometer at the higher tempurature.
+
 ## Long Sad Saga
 I love everything about [adafruit](https://www.adafruit.com/) except for one thing: a lot of their stuff needs
 soldering. I understand why but I wish there was an option to get it pre-assembled.
