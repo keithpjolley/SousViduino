@@ -6,20 +6,20 @@ This is a project that has been in the works for several years. See below for th
 ## Setup
 My setup is an Arduino Uno (though it compiles/runs on a Mega without changes too).
 
-On top that is a proto-screw shield similar to this:
+On top that is a proto-screw shield similar to this:<br>
 http://www.kumantech.com/kuman-screw-shield-expansion-board-for-arduinouno-r3-ky02-2pcs_p0052.html
 
-For the LCD display I'm using a plain LCD/Keypad shield (hardware rev 1.0) 
+For the LCD display I'm using a plain LCD/Keypad shield (hardware rev 1.0)<br>
 https://create.arduino.cc/projecthub/niftyjoeman/osepp-lcd-and-keypad-shield-d5b46e
 
 The thermometer is a one-wire DS18B20. It says it's waterproof but I guess you run the risk of
-having nasty plastics leach into your food unless it's wrapped it in food-grade plastic tubing.
-https://www.adafruit.com/product/642
+having nasty plastics leach into your food unless it's wrapped it in food-grade plastic tubing.<br>
+https://www.adafruit.com/product/642<br>
 https://www.adafruit.com/product/1020
 
 The relay I'm using is an "8 Relay Module". A smaller relay (like only one) would work fine but this is what I had on hand.
 It's important that the high-voltage (output) side of the relay is electrically isolated from the low-voltage (input) side.
-I'm not sure who made mine but it is similar to this:
+I'm not sure who made mine but it is similar to this:<br>
 https://www.dx.com/p/8-channel-5v-relay-module-board-for-arduino-red-156424
 
 I also have a small breadboard but with the screw-shield it's probably not needed. I had my thermometer,
@@ -30,7 +30,7 @@ come from the factory with one installed?)
 ## Wiring
 I have the thermometer on pin 11 and the relay on pin 12. Not much to it. The relay is inserted as a bump-in-the-wire,
 the wire being an old extension cord I sliced open. One end of the cord goes into the wall, the crockpot is plugged into
-the other end.
+the other end. There's an amazing schematic at the end of this document for you visual learners.
 
 ## Testing
 For initial testing I used a kitchen thermometer to see if they agreed on the ambient temperature - they did. 
@@ -50,7 +50,9 @@ with the UP|DOWN buttons works fine. I'm not concerned if the retune works or no
 not going to worry about it for now. It's not a problem that needs to be solved.
 
 ## Long Sad Saga
-I love everything about https://www.adafruit.com except for one thing. A lot of their stuff needs soldering.
+I love everything about [adafruit](https://www.adafruit.com/) except for one thing: a lot of their stuff needs
+soldering. I understand why but I wish there was an option to get it pre-assembled.
+
 I'm not good at soldering fine things. I can solder 12 guage wire all day long, or garden irrigation no
 problem. But soldering anything on to a PCB is beyond my skills. I burn the chip, the board, the circuit, my
 fingers, everything but the solder. I had originally ordered all the parts needed for this project several
@@ -87,22 +89,10 @@ a preset and off otherwise. Then I added the PID software and remembered I had n
 or decoding the terrible/non-existant documentation so I inserted the AutoTune code. I thought I was done
 but I added in being able to change the temp on the fly and removed any unused code/vars.
 
-Next step will be to see if I can connect the one-wire directly to the ESP8266 relay module. That'd be cool.
+## Next Steps
+I wonder if I can connect the one-wire directly to the ESP8266 relay module. That'd be cool. I also wish
+I could get the wifi shield working again. Arduino's are cool but without the internets available to them
+they are much less interesting to me.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-https://www.adafruit.com/product/714
-
+## Schematic
+![Wiring Diagram](https://raw.githubusercontent.com/keithpjolley/SousViduino/master/wiring.png)
