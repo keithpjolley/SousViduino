@@ -5,7 +5,7 @@
 //
 // an arduino sous vide setup. there should be a readme with this.
 //
-double targetTemp = 80.0; // °F -- the temperature we want to hold
+double targetTemp = 140.0; // °F -- the temperature we want to hold
 
 // Temp probe stuff
 // Data wire is plugged into this pin on the Arduino
