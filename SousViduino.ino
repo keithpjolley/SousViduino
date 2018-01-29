@@ -1,62 +1,56 @@
-
-double targetTemp = 140.0; // °F -- the temperature we want to hold
-
-// RELAY STUFF
-#define RELAY 12 // relay is controlled from this pin
+//
+// keith p jolley
+// squalor heights, jamul, ca, usa
+// Mon Jan 29 04:30:46 PST 2018
+//
+// an arduino sous vide setup. there should be a readme with this.
+//
+double targetTemp = 80.0; // °F -- the temperature we want to hold
 
 // Temp probe stuff
 // Data wire is plugged into this pin on the Arduino
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#define ONE_WIRE_BUS 11
+#define ONE_WIRE_BUS 11             // this goes to the thermometer.
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
 
+// RELAY STUFF
+#define RELAY 12 // relay is controlled from this pin
+
 // keypad/LCD stuff
 #include <LiquidCrystal.h>
 #include <LCDKeypad.h>
-#define BUTTON_RIGHT  0   // these are not pins
-#define BUTTON_UP     1
-#define BUTTON_DOWN   2
-#define BUTTON_LEFT   3
-#define BUTTON_SELECT 4
-#define BUTTON_NONE   5
 #define DEGREE        1   // create a "degree" -> ° <- symbol
 byte c_degree[8] = { B01110, B11011, B01110, B00000, B00000, B00000, B00000, B00000 };
 LCDKeypad lcd;
 
-
-// PID stuff
+// PID stuff -- much of it cut & paste from the PID_AutoTune example.
 #include <PID_v1.h>
 #include <PID_AutoTune_v0.h>
-double actualTemp = 0.0;  // °F -- the actual temperature
-double output;            // apparently something.
-
+double aTuneOutputStartVal = 5.0;    // this is a number with a purpose and units. it does something.
+double actualTemp = targetTemp;      // °F -- the actual temperature. set it to something reasonable.
+double output = aTuneOutputStartVal; // apparently this is something and has units too. good luck!
 byte ATuneModeRemember = 2;
-//double input=80, output=50, setpoint=180;
 double kp = 2, ki = 0.5, kd = 2;
-
-double kpmodel = 1.5, taup = 100, theta[50];
-double outputStart = 5;
-double aTuneStep = 50, aTuneNoise = 1, aTuneStartValue = 100;
-unsigned int aTuneLookBack = 20;
-
+double aTuneStep = 50.0, aTuneNoise = 1.0;
+unsigned int aTuneLookBack = 20;     // how much history to remember.
 boolean tuning = false;
-unsigned long  modelTime, serialTime;
-bool useSimulation = false;
+unsigned long serialTime = 0;
 
 PID_ATune aTune(&actualTemp, &output);
 PID myPID(&actualTemp, &output, &targetTemp, kp, ki, kd, DIRECT); // see how that works?  Yeah, me neither.
 
+// show something of interest on the device' LCD
 void LCDshowTemp(float target, float current, bool onoff) {
   lcd.clear();
   lcd.print("Curr: ");
   lcd.print(current);
   lcd.write(DEGREE);
   lcd.print("F ");
-  lcd.print(onoff ? "+" : "-");
+  lcd.print(onoff ? "+" : "-");  // <- toggle this to show if the relay is on or off
   lcd.setCursor(0, 1);
   lcd.print("Targ: ");
   lcd.print(target);
@@ -65,10 +59,11 @@ void LCDshowTemp(float target, float current, bool onoff) {
   return;
 }
 
+// more cut & paste code
 void changeAutoTune() {
   if (!tuning) {
     //Set the output to the desired starting frequency.
-    output = aTuneStartValue;
+    output = aTuneOutputStartVal;
     aTune.SetNoiseBand(aTuneNoise);
     aTune.SetOutputStep(aTuneStep);
     aTune.SetLookbackSec((int)aTuneLookBack);
@@ -82,26 +77,22 @@ void changeAutoTune() {
   }
 }
 
-// Function that prints data from the server
-void printData(char* data, int len) {
-  // Print the data returned by the server
-  // Note that the data is not null-terminated, may be broken up into smaller packets, and
-  // includes the HTTP header.
-  while (len-- > 0) {
-    Serial.print(*(data++));
-  }
-}
-
+// farenheit to celsius  (not used)
 float f2c(float f) {
   return ((5.0 * f - 160.0) / 9.0);
 }
 
+// the "thermometer" i'm using happens to give its readings in °C
+// but i am more familiar with °F. you do what works for you.
+// btw - i worked out these equations without looking them up.
+// pen and paper for the win. :)
+// celsius to farenheit
 float c2f(float c) {
   return (c * 1.8 + 32.0);
 }
 
 void setup(void) {
-  // start serial port
+  // start serial port and show we are live.
   Serial.begin(9600);
   Serial.println("hello world");
   sensors.begin();
@@ -116,23 +107,16 @@ void setup(void) {
   pinMode(RELAY, OUTPUT); // ONEWIRE already init'd in globals.
 
   myPID.SetMode(AUTOMATIC);
-  //tell the PID to range between 0 and the full window size
-  if (tuning) {
-    tuning = false;
-    changeAutoTune();
-    tuning = true;
-  }
-  serialTime = 0;
-
   return;
 }
 
+// all this serial output is more for troubleshooting than anything. not needed.
 void SerialSend() {
   Serial.print("targetTemp: "); Serial.print(targetTemp); Serial.print("°F, ");
   Serial.print("actualTemp: "); Serial.print(actualTemp); Serial.print("°F, ");
   Serial.print("output: ");     Serial.print(output);     Serial.print(", ");
   if (tuning) {
-    Serial.println("[tuning mode]");
+    Serial.print("[tuning]");
   } else {
     Serial.print("kp: "); Serial.print(myPID.GetKp()); Serial.print(", ");
     Serial.print("ki: "); Serial.print(myPID.GetKi()); Serial.print(", ");
@@ -142,6 +126,7 @@ void SerialSend() {
   return;
 }
 
+//// i expect no input
 void SerialReceive() {
   if (Serial.available())  {
     char b = Serial.read();
@@ -152,6 +137,7 @@ void SerialReceive() {
   }
 }
 
+// this does something.
 void AutoTuneHelper(boolean start) {
   if (start) {
     ATuneModeRemember = myPID.GetMode();
@@ -167,49 +153,44 @@ void waitReleaseButton() {
   delay(50);
 }
 
-int waitButton() {
-  int buttonPressed;
-  waitReleaseButton;
-  lcd.blink();
-  while ((buttonPressed = lcd.button()) == KEYPAD_NONE)  {
-  }
-  delay(50);
-  lcd.noBlink();
-  return buttonPressed;
-}
-
 void loop(void) {
-
   // I kind of doubt that with these little changes, presumably small, would require re-autotuning.
-  int buttonPressed;
-  do {
-    buttonPressed = lcd.button();
-  } while (!(buttonPressed == KEYPAD_UP || buttonPressed == KEYPAD_DOWN || buttonPressed == KEYPAD_NONE));
-  if (buttonPressed != KEYPAD_NONE) {
-    waitReleaseButton();
-  }
+  // this button code doesn't work as smoothly as i'd like but i don't think i'll use it often
+  // enough to warrant improving it.  it allows you to adjust the temp "in flight."  a reboot
+  // or reset will bring the targetTemp back to the value hardcoded above.
+
+  int buttonPressed = lcd.button();
   if (buttonPressed == KEYPAD_UP) {
     Serial.println("Increasing targetTemp by 0.25°F");
     targetTemp += 0.25;
+    delay(200); // to prevent massive changes
   }
-  else if (buttonPressed == KEYPAD_DOWN)   {
+  else if (buttonPressed == KEYPAD_DOWN) {
     targetTemp -= 0.25;
     Serial.println("Decreasing targetTemp by 0.25°F");
-
+    delay(200); // to prevent massive changes
+  } else if (buttonPressed == KEYPAD_SELECT) {
+    Serial.println("'SELECT' PRESSED. retuning.");
+    lcd.clear();
+    lcd.print("// Rerunning");
+    lcd.setCursor(0, 1);
+    lcd.print("// AutoTune()");
+    delay(1500);
+    AutoTuneHelper(false);
+    // don't proceed until the key is released.
+    if (buttonPressed != KEYPAD_NONE) {
+      waitReleaseButton();
+    }
   }
 
 
+  // now is the time for all good men...
   unsigned long now = millis();
 
   // call sensors.requestTemperatures() to issue a global temperature
   // request to all devices on the bus
-  //  Serial.print("Requesting temperatures...");
   sensors.requestTemperatures(); // Send the command to get temperatures
-  //  Serial.print("DONE...   ");
-
-  //  Serial.print("Temperature for Device 1 is: ");
-  // Why "byIndex"? You can have more than one IC on the same bus. 0 refers to the first IC on the wire
-  actualTemp = c2f(sensors.getTempCByIndex(0));
+  actualTemp = c2f(sensors.getTempCByIndex(0));  // convert temp to °F
 
   if (tuning) {
     byte val = aTune.Runtime();
@@ -222,24 +203,19 @@ void loop(void) {
       AutoTuneHelper(false);
     }
   } else {
-    myPID.Compute();
+    myPID.Compute();  // this updates globals.
   }
 
+  // update the timers for the PID
   if (millis() > serialTime) {
     SerialReceive();
     SerialSend();
     serialTime += 500;
   }
 
-  LCDshowTemp(targetTemp, actualTemp, output > 0.0);
+  LCDshowTemp(targetTemp, actualTemp, output > 0.0); // update the LCD
 
-  //  Serial.print("targetTemp: ");
-  //  Serial.print(targetTemp);
-  //  Serial.print("°F, actualTemp: ");
-  //  Serial.print(actualTemp);
-  //  Serial.print("°F, Relay: ");
-  //  Serial.println(hilo ? "Off" : "On");
-  digitalWrite(RELAY,  (output > 0.0) ? LOW : HIGH);
+  digitalWrite(RELAY, (output > 0.0) ? LOW : HIGH); // Turn on/off the relay
 
   return;
 }
