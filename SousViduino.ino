@@ -5,7 +5,13 @@
 //
 // an arduino sous vide setup. there should be a readme with this.
 //
+
 double targetTemp = 140.0; // °F -- the temperature we want to hold
+
+// define this if you want data being sent to the serial port
+#undef _SERIAL_OUT_
+
+
 
 // Temp probe stuff
 // Data wire is plugged into this pin on the Arduino
@@ -93,8 +99,10 @@ float c2f(float c) {
 
 void setup(void) {
   // start serial port and show we are live.
+#ifdef _SERIAL_OUT_
   Serial.begin(9600);
   Serial.println("hello world");
+#endif
   sensors.begin();
   lcd.createChar(DEGREE, c_degree);
   lcd.begin(16, 2);
@@ -112,6 +120,7 @@ void setup(void) {
 
 // all this serial output is more for troubleshooting than anything. not needed.
 void SerialSend() {
+#ifdef _SERIAL_OUT_
   Serial.print("targetTemp: "); Serial.print(targetTemp); Serial.print("°F, ");
   Serial.print("actualTemp: "); Serial.print(actualTemp); Serial.print("°F, ");
   Serial.print("output: ");     Serial.print(output);     Serial.print(", ");
@@ -123,11 +132,13 @@ void SerialSend() {
     Serial.print("kd: "); Serial.print(myPID.GetKd()); Serial.print(", ");
   }
   Serial.print("relay: "); Serial.println(output > 0 ? "ON" : "OFF");
+#endif
   return;
 }
 
 //// i expect no input
 void SerialReceive() {
+#ifdef _SERIAL_OUT_
   if (Serial.available())  {
     char b = Serial.read();
     Serial.flush();
@@ -135,6 +146,8 @@ void SerialReceive() {
       changeAutoTune();
     }
   }
+#endif
+  return;
 }
 
 // this does something.
@@ -161,16 +174,22 @@ void loop(void) {
 
   int buttonPressed = lcd.button();
   if (buttonPressed == KEYPAD_UP) {
+#ifdef _SERIAL_OUT_
     Serial.println("Increasing targetTemp by 0.25°F");
+#endif
     targetTemp += 0.25;
     delay(200); // to prevent massive changes
   }
   else if (buttonPressed == KEYPAD_DOWN) {
     targetTemp -= 0.25;
+#ifdef _SERIAL_OUT_
     Serial.println("Decreasing targetTemp by 0.25°F");
+#endif
     delay(200); // to prevent massive changes
   } else if (buttonPressed == KEYPAD_SELECT) {
+#ifdef _SERIAL_OUT_
     Serial.println("'SELECT' PRESSED. retuning.");
+#endif
     lcd.clear();
     lcd.print("// Rerunning");
     lcd.setCursor(0, 1);
