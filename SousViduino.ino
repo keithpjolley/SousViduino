@@ -186,22 +186,7 @@ void loop(void) {
     Serial.println("Decreasing targetTemp by 0.25°F");
 #endif
     delay(200); // to prevent massive changes
-  } else if (buttonPressed == KEYPAD_SELECT) {
-#ifdef _SERIAL_OUT_
-    Serial.println("'SELECT' PRESSED. retuning.");
-#endif
-    lcd.clear();
-    lcd.print("// Rerunning");
-    lcd.setCursor(0, 1);
-    lcd.print("// AutoTune()");
-    delay(1500);
-    AutoTuneHelper(false);
-    // don't proceed until the key is released.
-    if (buttonPressed != KEYPAD_NONE) {
-      waitReleaseButton();
-    }
   }
-
 
   // now is the time for all good men...
   unsigned long now = millis();
