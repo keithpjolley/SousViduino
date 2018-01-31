@@ -167,10 +167,13 @@ void waitReleaseButton() {
 }
 
 void loop(void) {
-  // I kind of doubt that with these little changes, presumably small, would require re-autotuning.
-  // this button code doesn't work as smoothly as i'd like but i don't think i'll use it often
-  // enough to warrant improving it.  it allows you to adjust the temp "in flight."  a reboot
-  // or reset will bring the targetTemp back to the value hardcoded above.
+
+  // i kind of doubt that with these little changes, presumably small,
+  // would require re-autotuning.  this button code doesn't work as
+  // smoothly as i'd like but i don't think i'll use it often enough
+  // to warrant improving it.  it allows you to adjust the temp "in
+  // flight." a reset will bring the targetTemp back to the value
+  // hardcoded above.
 
   int buttonPressed = lcd.button();
   if (buttonPressed == KEYPAD_UP) {

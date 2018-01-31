@@ -51,9 +51,19 @@ not going to worry about it for now. It's not a problem that needs to be solved.
 
 The above code ran overnight and kept the recorded temperature within 1/2°F the entire time.
 
-Next test will be to keep a crockpot (Crock-Pot®) at 141°F. I won'tbe able to record the serial
+~~Next test will be to keep a crockpot (Crock-Pot®) at 141°F. I won'tbe able to record the serial
 output because I don't have an SD Shield and I don't want the laptop tied up in the kitchen overnight.
-This will also be a chance to see if I need to calibrate the thermometer at the higher tempurature.
+This will also be a chance to see if I need to calibrate the thermometer at the higher temperature.~~
+
+Testing showed everything working well. It got the temperature up to where it needed to be and then
+held it right on target with very little overshoot. The three thermometers (two digital, one analog)
+I used agreed enough that I'm not going to adjust the sensor output.
+
+I did remove the "reset" code because it didn't work like I thought it would. I tested it when the
+system was at a steady state and a few minutes later the temperature was 20°F too high.
+
+Another test was to add about two cups of ice to the crockpot when it was at equilibrium. The
+temperature dropped from 140°F to 110°F but then climbed right back up to 140°F as expected.
 
 ## Long Sad Saga
 I love everything about [adafruit](https://www.adafruit.com/) except for one thing: a lot of their stuff needs
